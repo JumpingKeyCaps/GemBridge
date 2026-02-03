@@ -8,7 +8,7 @@ A clean, modular **integration playground** demonstrating multiple ways to conne
 
 **GemBridge** is a developer-oriented Proof of Concept showcasing **three production-relevant integration strategies** for accessing Gemini-based AI remotely.
 
-The project is designed to help Android developers understand the trade-offs between **direct API integration** and **backend-mediated solutions using Firebase**.
+The project is designed to help Android developers understand the trade-offs between direct API integration and managed platform integrations using Firebase.
 
 GemBridge focuses on:
 
@@ -96,7 +96,7 @@ Each data source is **fully interchangeable**, allowing developers to benchmark 
 
 ## Firebase Vertex AI Integration
 
-Firebase provides direct access to Gemini models through **Firebase AI and Vertex AI**, removing the need for a custom backend proxy.
+Firebase provides direct access to Gemini models through **Vertex AI**, removing the need for a custom backend proxy.
 
 ### Typical Flow
 ```
@@ -126,7 +126,7 @@ Vertex AI (Gemini Models)
 - Repository abstraction for source swapping
 - Reactive Compose UI
 - Coroutine-based async handling
-- Secure Firebase gateway example
+- Secure Firebase AI integration example
 - Multimodal-ready architecture
 - Designed for experimentation & benchmarking
 
@@ -148,7 +148,7 @@ GemBridge helps developers:
 
 - [ ] Retrofit integration with Gemini Flash  
 - [ ] Google Generative AI SDK integration  
-- [ ] Firebase AI secure gateway  
+- [ ] Firebase Vertex AI integration
 - [ ] Unified repository abstraction
 
 ---
