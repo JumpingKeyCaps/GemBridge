@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.lebaillyapp.gembridge.data.repository.GeminiRepository
 import com.lebaillyapp.gembridge.domain.model.ChatMessage
 import com.lebaillyapp.gembridge.domain.model.ChatState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * # ChatViewModel
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
  * Il transforme les intentions de l'utilisateur (envoyer un message) en état (State)
  * en communiquant avec le repository.
  */
-class ChatViewModel(
+@HiltViewModel
+class ChatViewModel @Inject constructor(
     private val repository: GeminiRepository
 ) : ViewModel() {
 
