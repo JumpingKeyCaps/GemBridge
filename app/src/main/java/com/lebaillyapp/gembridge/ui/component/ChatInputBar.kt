@@ -22,6 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * # ChatInputBar
+ * Composant de saisie textuelle situé généralement en bas de l'écran de discussion.
+ *  ### Fonctionnement :
+ * - Gère son propre état local ([textState]) pour la saisie en cours.
+ * - Le bouton d'envoi n'est activé que si le texte n'est pas vide ou composé uniquement d'espaces.
+ * - Réinitialise le champ de saisie automatiquement après avoir déclenché l'action d'envoi.
+ * @param onSendMessage Lambda déclenchée lors du clic sur le bouton d'envoi, transmettant le texte saisi.
+ * @param modifier Modificateur optionnel pour l'agencement externe du composant.
+ */
 @Composable
 fun ChatInputBar(
     onSendMessage: (String) -> Unit,
