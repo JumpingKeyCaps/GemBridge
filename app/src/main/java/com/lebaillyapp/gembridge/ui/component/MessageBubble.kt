@@ -13,15 +13,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lebaillyapp.gembridge.domain.model.ChatMessage
 
+/**
+ * # MessageBubble
+ *  Composant d'interface représentant une bulle de texte unique dans la conversation.
+ *  ### Logique d'affichage :
+ * - **Utilisateur :** Aligné à droite (End), couleur primaire de l'application, coin inférieur droit "pointu".
+ * - **IA (Gemini) :** Aligné à gauche (Start), couleur de conteneur secondaire, coin inférieur gauche "pointu".
+ *  @param message L'objet [ChatMessage] contenant le contenu textuel et la source (user ou bot).
+ */
 @Composable
 fun MessageBubble(message: ChatMessage) {
+    // Analyse de la source pour déterminer le style
     val isUser = message.isFromUser
 
-    // On définit l'alignement et la couleur selon l'expéditeur
+    // Configuration dynamique du layout
     val alignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
-    val bubbleColor = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
-    val textColor = if (isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
 
+    // Extraction des couleurs du thème Material 3
+    val bubbleColor = if (isUser) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.secondaryContainer
+    }
+
+    val textColor = if (isUser) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    }
+
+    // Container principal occupant toute la largeur pour permettre l'alignement
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,13 +51,14 @@ fun MessageBubble(message: ChatMessage) {
     ) {
         Surface(
             color = bubbleColor,
+            // Construction asymétrique des coins pour l'effet "bulle de BD"
             shape = RoundedCornerShape(
                 topStart = 16.dp,
                 topEnd = 16.dp,
                 bottomStart = if (isUser) 16.dp else 0.dp,
                 bottomEnd = if (isUser) 0.dp else 16.dp
             ),
-            tonalElevation = 2.dp
+            tonalElevation = 2.dp // Légère ombre pour détacher la bulle du fond
         ) {
             Text(
                 text = message.content,
