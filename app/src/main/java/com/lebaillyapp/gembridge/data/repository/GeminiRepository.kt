@@ -3,6 +3,7 @@ package com.lebaillyapp.gembridge.data.repository
 import com.lebaillyapp.gembridge.data.service.GeminiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * Point d'entrée unique pour la gestion des données liées à l'IA.
@@ -12,7 +13,7 @@ import kotlinx.coroutines.withContext
  *
  * @property geminiService L'implémentation du service à utiliser (Mock, SDK, Retrofit, etc.).
  */
-class GeminiRepository(
+class GeminiRepository @Inject constructor(
     private val geminiService: GeminiService
 ) {
 
