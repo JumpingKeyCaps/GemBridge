@@ -2,7 +2,7 @@ package com.lebaillyapp.gembridge.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lebaillyapp.gembridge.data.repository.GeminiRepository
+import com.lebaillyapp.gembridge.domain.usecase.GetChatResponseUseCase
 import com.lebaillyapp.gembridge.domain.model.ChatMessage
 import com.lebaillyapp.gembridge.domain.model.ChatState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,11 +18,11 @@ import javax.inject.Inject
  * ViewModel pilotant l'écran de discussion.
  *
  * Il transforme les intentions de l'utilisateur (envoyer un message) en état (State)
- * en communiquant avec le repository.
+ * en communiquant avec le usecase.
  */
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val repository: GeminiRepository
+    private val getChatResponse: GetChatResponseUseCase
 ) : ViewModel() {
 
     // L'état privé, modifiable uniquement dans cette classe
@@ -58,7 +58,7 @@ class ChatViewModel @Inject constructor(
         //3 - Lancement de l'appel asynchrone
         viewModelScope.launch {
             // Appel au repository (qui est déjà Main-safe grâce au Dispatchers.IO )
-            val result = repository.getAiResponse(content)
+            val result = getChatResponse(content)
 
             result.fold(
                 onSuccess = { responseText ->
