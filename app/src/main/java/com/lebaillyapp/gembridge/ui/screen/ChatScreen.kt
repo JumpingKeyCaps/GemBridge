@@ -47,7 +47,8 @@ fun ChatScreen(
                             listState.animateScrollToItem(uiState.messages.size)
                         }
                     }
-                }
+                },
+                modifier = Modifier.navigationBarsPadding()
             )
         }
     ) { paddingValues ->
