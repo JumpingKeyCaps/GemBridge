@@ -3,6 +3,7 @@ package com.lebaillyapp.gembridge.di
 import com.lebaillyapp.gembridge.data.repository.GeminiRepository
 import com.lebaillyapp.gembridge.data.service.GeminiService
 import com.lebaillyapp.gembridge.data.service.MockGeminiService
+import com.lebaillyapp.gembridge.domain.usecase.GetChatResponseUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,13 +24,6 @@ object AppModule {
         return MockGeminiService() // on utilise notre mock pour le moment !
     }
 
-    /**
-     * Fournit le repository.
-     * Hilt voit qu'il a besoin d'un GeminiService et utilise celui fourni au-dessus.
-     */
-    @Provides
-    @Singleton
-    fun provideGeminiRepository(service: GeminiService): GeminiRepository {
-        return GeminiRepository(service)
-    }
+
+
 }
