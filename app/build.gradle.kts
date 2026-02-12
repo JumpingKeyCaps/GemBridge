@@ -60,6 +60,9 @@ dependencies {
     // --- HILT FOR COMPOSE & NAVIGATION ---
     implementation(libs.androidx.hilt.navigation.compose)
 
+    //Splash screen
+    implementation("androidx.core:core-splashscreen:1.2.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
