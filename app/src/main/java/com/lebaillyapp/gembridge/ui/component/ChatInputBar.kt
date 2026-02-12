@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -20,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.lebaillyapp.gembridge.R
 
 /**
  * # ChatInputBar
@@ -43,32 +43,57 @@ fun ChatInputBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(start = 18.dp, end = 18.dp, bottom = 10.dp, top = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
             value = textState,
             onValueChange = { textState = it },
-            modifier = Modifier.weight(1f).padding(start = 8.dp),
-            placeholder = { Text("Ask me a question...",Modifier.padding(start = 18.dp)) },
+            modifier = Modifier.weight(1f).padding(start = 5.dp),
+            placeholder = { Text("Ask me anything...",Modifier.padding(start = 18.dp)) },
             shape = RoundedCornerShape(26.dp),
             colors = TextFieldDefaults.colors(
+                // La couleur quand on tape dedans
+                focusedContainerColor = Color(0xFF16191F),
+                // La couleur quand il est au repos
+                unfocusedContainerColor = Color(0xFF12141A),
+                // Tes paramètres actuels pour cacher la ligne du bas
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
+                unfocusedIndicatorColor = Color.Transparent,
+                // Optionnel : la couleur du curseur
+                cursorColor = Color(0xffedff61)
+            ),
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier.padding( start = 8.dp),
+                        //.graphicsLayer(rotationY = 180f),
+                    painter = painterResource(id = R.drawable.scool_ico_micro),
+                    tint = Color.Unspecified,
+                    contentDescription = "ic_app")
+            },
+            trailingIcon = {
+                IconButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        if (textState.isNotBlank()) {
+                            onSendMessage(textState)
+                            textState = ""
+                            keyboardController?.hide() //  Fermeture du clavier
+                        }
+                    },
+                    enabled = textState.isNotBlank()
+                ) {
+                    Icon(
+                        modifier = Modifier.padding( 8.dp),
+                        painter = painterResource(id = R.drawable.ic_send),
+                        tint = Color(0xFF606065),
+                        contentDescription = "Envoyer")
+                }
+            }
+
+
         )
 
-        IconButton(
-            onClick = {
-                if (textState.isNotBlank()) {
-                    onSendMessage(textState)
-                    textState = ""
-                    keyboardController?.hide() //  Fermeture du clavier
-                }
-            },
-            enabled = textState.isNotBlank()
-        ) {
-            Icon(Icons.Default.Done, contentDescription = "Envoyer")
-        }
+
     }
 }
