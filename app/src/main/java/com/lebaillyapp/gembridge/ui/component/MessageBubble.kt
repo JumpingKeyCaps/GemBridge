@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lebaillyapp.gembridge.domain.model.ChatMessage
 
@@ -31,13 +32,13 @@ fun MessageBubble(message: ChatMessage) {
 
     // Extraction des couleurs du thème Material 3
     val bubbleColor = if (isUser) {
-        MaterialTheme.colorScheme.primary
+        Color(0xFF14171E)
     } else {
         MaterialTheme.colorScheme.secondaryContainer
     }
 
     val textColor = if (isUser) {
-        MaterialTheme.colorScheme.onPrimary
+        MaterialTheme.colorScheme.onSecondaryContainer
     } else {
         MaterialTheme.colorScheme.onSecondaryContainer
     }
@@ -46,7 +47,7 @@ fun MessageBubble(message: ChatMessage) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp, horizontal = 28.dp),
         contentAlignment = alignment
     ) {
         Surface(
@@ -64,7 +65,7 @@ fun MessageBubble(message: ChatMessage) {
                 text = message.content,
                 color = textColor,
                 modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
