@@ -48,7 +48,9 @@ fun ChatScreen(
                         }
                     }
                 },
-                modifier = Modifier.navigationBarsPadding()
+                modifier = Modifier.navigationBarsPadding(),
+                onToggleSettings = {},
+                isSettingsOpen = false
             )
         }
     ) { paddingValues ->
