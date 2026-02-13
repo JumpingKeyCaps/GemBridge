@@ -10,5 +10,6 @@ package com.lebaillyapp.gembridge.domain.model
 data class ChatState(
     val messages: List<ChatMessage> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val isSettingsOpen: Boolean = false
 )
