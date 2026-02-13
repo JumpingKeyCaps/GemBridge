@@ -3,7 +3,11 @@ package com.lebaillyapp.gembridge.ui.component
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -35,6 +39,8 @@ import com.lebaillyapp.gembridge.R
 @Composable
 fun ChatInputBar(
     onSendMessage: (String) -> Unit,
+    onToggleSettings: () -> Unit,
+    isSettingsOpen: Boolean,
     modifier: Modifier = Modifier
 ) {
     var textState by remember { mutableStateOf("") }
@@ -46,6 +52,20 @@ fun ChatInputBar(
             .padding(start = 18.dp, end = 18.dp, bottom = 10.dp, top = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
+        // --- BOUTON RÉGLAGES ---
+        IconButton(
+            onClick = onToggleSettings,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(
+                imageVector = if (isSettingsOpen) Icons.Default.Close else Icons.Default.Settings,
+                contentDescription = "Settings",
+                tint = if (isSettingsOpen) Color(0xffedff61) else Color(0xFF606065)
+            )
+        }
+
+
         TextField(
             value = textState,
             onValueChange = { textState = it },
