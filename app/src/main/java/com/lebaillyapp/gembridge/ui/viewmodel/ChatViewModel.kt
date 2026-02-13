@@ -82,4 +82,13 @@ class ChatViewModel @Inject constructor(
             )
         }
     }
+
+    /**
+     * ## toggleSettings
+     * Met a jour l'etat de la conversation quand le pannel setting est ouvert/fermer.
+     */
+    fun toggleSettings() {
+        _uiState.update { it.copy(isSettingsOpen = !it.isSettingsOpen) }
+    }
+
 }
