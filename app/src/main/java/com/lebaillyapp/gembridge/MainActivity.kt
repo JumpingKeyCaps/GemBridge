@@ -19,7 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.lebaillyapp.gembridge.ui.screen.ChatScreen
+import com.lebaillyapp.gembridge.ui.screen.ChatScreenV2
 import com.lebaillyapp.gembridge.ui.theme.GemBridgeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
 
 
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    ChatScreen()
+                    ChatScreenV2()
                 }
             }
         }
