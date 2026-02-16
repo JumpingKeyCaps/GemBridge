@@ -74,7 +74,7 @@ dependencies {
     //Splash screen
     implementation("androidx.core:core-splashscreen:1.2.0")
 
-    // Le SDK officiel pour Gemini
+    // Le SDK officiel pour Gemini (MODE 2 : Official Google Generative AI SDK)
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
 
