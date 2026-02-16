@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+
 import com.lebaillyapp.gembridge.ui.screen.ChatScreenV2
 import com.lebaillyapp.gembridge.ui.theme.GemBridgeTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +28,10 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    //todo - to remove later, juste a loading test of the Gemini API key
+    val geminiKeyTest = BuildConfig.GEMINI_API_KEY
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // 1. On initialise l'instance
         super.onCreate(savedInstanceState)
