@@ -1,16 +1,27 @@
 package com.lebaillyapp.gembridge.data.service
 
 /**
- * Contrat définissant les capacités de notre service d'IA.
- * * Dans ce projet, ce "Service" est une interface car elle sera implémentée
- * par trois stratégies différentes : Retrofit, le SDK officiel, et Firebase.
+ * # GeminiService
+ *
+ * Core contract defining the AI generation capabilities of the application.
+ *
+ * This interface acts as an abstraction layer to decouple the business logic from specific
+ * implementation details. In the GemBridge PoC, this allows seamless switching between:
+ * 0. **Mock** (for testing)
+ * 1. **Retrofit** (Direct REST API)
+ * 2. **Google AI SDK** (Official client library)
+ * 3. **Firebase Vertex AI** (Managed production-grade integration)
  */
 interface GeminiService {
 
     /**
-     * Envoie le prompt à l'IA et récupère la réponse brute.
-     * @param prompt Le texte saisi par l'utilisateur.
-     * @return [Result] encapsulant la String de réponse ou une erreur.
+     * ### GenerateResponse
+     * Sends a raw prompt to the AI model and retrieves the generated response.
+     *
+     * @param prompt The textual input provided by the user or orchestrated by a UseCase.
+     * @return A [Result] wrapping the successful [String] response or a [Throwable] describing the failure.
+     *
+     * @see <a href="https://ai.google.dev/gemini-api/docs">Gemini API Documentation</a>
      */
     suspend fun generateResponse(prompt: String): Result<String>
 }
