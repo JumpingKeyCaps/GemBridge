@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
         //todo - to remove later, juste a loading test of the Gemini API key
         //Test if the apikey is well loaded from local.properties
         val geminiKeyTest = BuildConfig.GEMINI_API_KEY
-        Log.d("GEMINI_API_KEY", geminiKeyTest)
+        Log.d("GEMINI_API_KEY", "The Gemini API key is : $geminiKeyTest")
 
 
     }
