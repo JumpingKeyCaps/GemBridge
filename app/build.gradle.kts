@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,11 +8,10 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+
 android {
     namespace = "com.lebaillyapp.gembridge"
     compileSdk = 36
-
-
 
 
     defaultConfig {
@@ -21,8 +22,10 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val apiKey = project.findProperty("GEMINI_API_KEY") ?: ""   // don't forget to add YOUR api key in local.properties ===> GEMINI_API_KEY= ...
-        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+        // Get the Gemini API key from local.properties via Gradle DSL
+        // WARNING ----> Do not forget to replace in local.properties file the Gemini API key with YOUR own !!!!
+        val geminiApiKey = gradleLocalProperties(rootDir, providers).getProperty("GEMINI_API_KEY", "")
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
 
 
     }
