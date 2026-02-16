@@ -30,9 +30,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    //todo - to remove later, juste a loading test of the Gemini API key
-    val geminiKeyTest = BuildConfig.GEMINI_API_KEY
-
     override fun onCreate(savedInstanceState: Bundle?) {
         // 1. On initialise l'instance
         super.onCreate(savedInstanceState)
