@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.VibratorManager
+import android.util.Log
 import android.view.View
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+
 import com.lebaillyapp.gembridge.ui.screen.ChatScreenV2
 import com.lebaillyapp.gembridge.ui.theme.GemBridgeTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -86,6 +88,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+
+
+        //todo - to remove later, juste a loading test of the Gemini API key
+        //Test if the apikey is well loaded from local.properties
+        val geminiKeyTest = BuildConfig.GEMINI_API_KEY
+        Log.d("GEMINI_API_KEY", geminiKeyTest)
+
+
     }
 
 
