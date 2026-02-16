@@ -10,14 +10,21 @@ android {
     namespace = "com.lebaillyapp.gembridge"
     compileSdk = 36
 
+
+
+
     defaultConfig {
         applicationId = "com.lebaillyapp.gembridge"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val apiKey = project.findProperty("GEMINI_API_KEY") ?: ""   // don't forget to add YOUR api key in local.properties ===> GEMINI_API_KEY= ...
+        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+
+
     }
 
     buildTypes {
@@ -38,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -63,6 +71,9 @@ dependencies {
     //Splash screen
     implementation("androidx.core:core-splashscreen:1.2.0")
 
+    // Le SDK officiel pour Gemini
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -72,3 +83,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
