@@ -1,6 +1,7 @@
 package com.lebaillyapp.gembridge.domain.usecase
 
 import com.lebaillyapp.gembridge.data.repository.GeminiRepository
+import com.lebaillyapp.gembridge.domain.model.GeminiConfig
 import javax.inject.Inject
 
 /**
@@ -15,11 +16,11 @@ class GetChatResponseUseCase @Inject constructor(
      * Exécute la logique de génération de réponse.
      * Pour l'instant, c'est un simple relai, mais la structure est prête.
      */
-    suspend operator fun invoke(userPrompt: String): Result<String> {
+    suspend operator fun invoke(userPrompt: String, config: GeminiConfig): Result<String> {
         // C'est ici qu'on pourra faire :
         // val intention = repository.getAiResponse("Analyse : $userPrompt")
         // val final = repository.getAiResponse("Réponds à $intention")
 
-        return repository.getAiResponse(userPrompt)
+        return repository.getAiResponse(userPrompt,config)
     }
 }
