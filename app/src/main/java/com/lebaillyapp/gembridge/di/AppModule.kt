@@ -17,6 +17,16 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class) // Le module vit aussi longtemps que l'app
 object AppModule {
 
+
+    /**
+     * Provides the API Key from BuildConfig.
+     * Using a named provider or qualifier is a best practice to avoid
+     * confusion with other String injections.
+     */
+    @Provides
+    fun provideApiKey(): String = BuildConfig.GEMINI_API_KEY
+
+
     //MODE 0 - Mock service (used to debug app architecture pipeline)
     /**
      * Fournit l'implémentation concrète du service.
@@ -24,8 +34,16 @@ object AppModule {
      */
     @Provides
     @Singleton
-    fun provideGeminiService(): GeminiService {
-        return MockGeminiService() // on utilise notre mock pour le moment !
+    fun provideGeminiService(apiKey: String): GeminiService {
+        // --- PILLAR 0: Architecture Debugging ---
+         return MockGeminiService()
+
+        // --- PILLAR 2: Official Google SDK ---
+        // Now using the dynamic version of GoogleGeminiService
+       // return GoogleGeminiService(apiKey)
+
+        // --- PILLAR 1: Retrofit (Coming Soon) ---
+        // return ...
     }
 
     // MODE 2 - GenerativeAI Google SDK
@@ -39,12 +57,5 @@ object AppModule {
         )
     }
 
-    @Provides
-    @Singleton
-    fun provideGeminiService(generativeModel: GenerativeModel): GeminiService {
-        // Pour l'instant, on branche l'implémentation Google.
-        // Plus tard, on pourra switcher ici sur Retrofit ou Firebase.
-        return GoogleGeminiService(generativeModel)
-    }
 
 }
