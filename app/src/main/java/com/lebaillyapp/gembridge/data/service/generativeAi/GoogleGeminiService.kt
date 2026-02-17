@@ -1,49 +1,59 @@
 package com.lebaillyapp.gembridge.data.service.generativeAi
 
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
+import com.google.ai.client.generativeai.type.generationConfig
+import com.lebaillyapp.gembridge.BuildConfig
 import com.lebaillyapp.gembridge.data.service.GeminiService
+import com.lebaillyapp.gembridge.domain.model.GeminiConfig
 import javax.inject.Inject
 
 /**
- * # GoogleGeminiService
+ * **GoogleGeminiService**
  *
  * Concrete implementation of [GeminiService] leveraging the official **Google Generative AI SDK**.
  *
- * This service communicates directly with Gemini models using the client provided by Google.
- * It represents the second pillar of the GemBridge integration strategy, offering a
- * straightforward, client-side implementation for rapid development and multimodal support.
- *
- * @property generativeModel The [GenerativeModel] instance (e.g., Gemini 1.5 Flash) injected via Hilt.
+ * This implementation is stateless regarding the model's configuration: it reconstructs
+ * the [GenerativeModel] for each request to allow dynamic parameter tuning (temperature,
+ * system prompts, etc.) directly from the UI or UseCases.
  */
 class GoogleGeminiService @Inject constructor(
-    private val generativeModel: GenerativeModel
+    private val apiKey: String
 ) : GeminiService {
 
+    // model version
+    private val modelName = "gemini-1.5-flash"
+
     /**
-     * ### GenerateResponse
-     * Executes a content generation request using the official Google SDK.
-     *
-     * The process involves:
-     * 1. Invoking the suspending [GenerativeModel.generateContent] method.
-     * 2. Validating the response (handling potential null values from safety filters).
-     * 3. Catching and encapsulating exceptions into a [Result] wrapper.
+     * Executes a content generation request with dynamic parameters.
      *
      * @param prompt The user's input string.
-     * @return A [Result] containing the generated text or an exception describing the failure
-     * (e.g., network issues, invalid API key, or safety blockages).
+     * @param config The [GeminiConfig] containing temperature, topP, and system instructions.
+     * @return A [Result] containing the generated text or the failure exception.
      */
-    override suspend fun generateResponse(prompt: String): Result<String> {
+    override suspend fun generateResponse(prompt: String, config: GeminiConfig): Result<String> {
         return try {
-            // SDK Call: generateContent is a native suspending function
-            val response = generativeModel.generateContent(prompt)
+            // 1. Build a one-shot model with the dynamic configuration
+            val dynamicModel = GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                generationConfig = generationConfig {
+                    temperature = config.temperature
+                    topP = config.topP
+                    topK = config.topK
+                },
+                systemInstruction = content { text(config.systemPrompt) }
+            )
 
-            // Extract text. If null, throw an exception to be caught in the block below.
-            // Note: response.text can be null if the model blocks the output due to safety settings.
-            val responseText = response.text ?: throw Exception("Gemini n'a pas pu générer de texte.")
+            // 2. Execute the request
+            val response = dynamicModel.generateContent(prompt)
+
+            // 3. Extract and validate text
+            val responseText = response.text
+                ?: throw Exception("Gemini failed to generate text (potential safety block or empty response).")
 
             Result.success(responseText)
         } catch (e: Exception) {
-            // Encapsulates all errors (network, quota, invalid API Key, etc.)
             Result.failure(e)
         }
     }
