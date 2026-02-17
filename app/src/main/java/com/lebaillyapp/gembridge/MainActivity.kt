@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.VibratorManager
-import android.util.Log
 import android.view.View
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
@@ -89,14 +88,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-
-
-        //todo - to remove later, juste a loading test of the Gemini API key
-        //Test if the apikey is well loaded from local.properties
-        val geminiKeyTest = BuildConfig.GEMINI_API_KEY
-        Log.d("GEMINI_API_KEY", "The Gemini API key is : $geminiKeyTest")
-
 
     }
 
