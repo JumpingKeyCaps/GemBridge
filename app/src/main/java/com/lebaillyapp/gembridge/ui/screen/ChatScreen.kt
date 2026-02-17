@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.lebaillyapp.gembridge.domain.model.GeminiConfig
 import com.lebaillyapp.gembridge.ui.component.ChatInputBar
 import com.lebaillyapp.gembridge.ui.component.MessageBubble
 import com.lebaillyapp.gembridge.ui.viewmodel.ChatViewModel
@@ -40,7 +41,7 @@ fun ChatScreen(
         bottomBar = {
             ChatInputBar(
                 onSendMessage = { text ->
-                    viewModel.onSendMessage(text)
+                    viewModel.onSendMessage(text, GeminiConfig())
                     // Scroll immédiat vers le bas lors d'un envoi utilisateur
                     coroutineScope.launch {
                         if (uiState.messages.isNotEmpty()) {
