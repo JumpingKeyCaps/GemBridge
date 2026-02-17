@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.lebaillyapp.gembridge.domain.model.GeminiConfig
 import com.lebaillyapp.gembridge.ui.component.ChatContent
 import com.lebaillyapp.gembridge.ui.component.SettingsPanel
 import com.lebaillyapp.gembridge.ui.viewmodel.ChatViewModel
@@ -63,7 +64,7 @@ fun ChatScreenV2(
             // Ton Scaffold actuel (avec la modif de la ChatInputBar)
             ChatContent(
                 uiState = uiState,
-                onSendMessage = { viewModel.onSendMessage(it) },
+                onSendMessage = { viewModel.onSendMessage(it, GeminiConfig()) },// todo- plug the real config to use
                 onToggleSettings = { viewModel.toggleSettings() }
             )
         }
