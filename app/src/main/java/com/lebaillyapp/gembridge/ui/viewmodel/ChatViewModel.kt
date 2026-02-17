@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.lebaillyapp.gembridge.domain.usecase.GetChatResponseUseCase
 import com.lebaillyapp.gembridge.domain.model.ChatMessage
 import com.lebaillyapp.gembridge.domain.model.ChatState
+import com.lebaillyapp.gembridge.domain.model.GeminiConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +37,7 @@ class ChatViewModel @Inject constructor(
      * Traite l'envoi d'un message utilisateur.
      * @param content Le texte saisi par l'utilisateur.
      */
-    fun onSendMessage(content: String) {
+    fun onSendMessage(content: String, config: GeminiConfig) {
         //0 - Sécurité : on n'envoie pas de messages vides
         if (content.isBlank()) return
 
@@ -58,7 +59,7 @@ class ChatViewModel @Inject constructor(
         //3 - Lancement de l'appel asynchrone
         viewModelScope.launch {
             // Appel au repository (qui est déjà Main-safe grâce au Dispatchers.IO )
-            val result = getChatResponse(content)
+            val result = getChatResponse(content,config)
 
             result.fold(
                 onSuccess = { responseText ->
