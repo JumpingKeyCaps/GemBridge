@@ -23,7 +23,7 @@ import com.lebaillyapp.gembridge.R
 fun AiResponseDisplay(
     fullText: String,
     fontSize: TextUnit = 16.sp,
-    charDelay: Long = 45L
+    charDelay: Long = 40L
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
