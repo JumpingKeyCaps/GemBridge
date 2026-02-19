@@ -1,0 +1,61 @@
+uniform shader composable;
+uniform float2 cursor;
+uniform float radius;
+uniform float time;
+uniform float laserIntensity;
+
+// --- PARAMETRES TWEAKABLES ---
+const half3 COLOR_IDLE = half3(0.4, 0.45, 0.5);
+const half3 COLOR_NEON = half3(0.0, 0.6, 1.0);
+const half3 COLOR_HOT  = half3(1.0, 1.0, 1.0);
+const float BLOOM_PWR  = 0.5;
+const float CORE_PWR   = 8.0;
+const float TRAIL_LENGTH = 120.0;
+
+const float DISTORT_STRENGTH = 9.0;
+const float CHROMATIC_SHIFT = 2.5; // Décalage des couleurs au point chaud
+const float WAVE_SPEED = 3.0;
+// -----------------------------
+
+half4 main(float2 fragCoord) {
+    // 1. Calcul de la chaleur
+    float d = distance(fragCoord, cursor);
+    float spatialHeat = exp(-(d * d) / (radius * radius * 0.4));
+    float horizontalHeat = 0.0;
+    float distY = abs(fragCoord.y - cursor.y);
+
+    if (distY < radius && fragCoord.x < cursor.x) {
+        float distX = cursor.x - fragCoord.x;
+        horizontalHeat = exp(-distX / TRAIL_LENGTH);
+        horizontalHeat *= (1.0 - smoothstep(0.0, radius, distY));
+    }
+
+    float heat = max(spatialHeat, horizontalHeat) * laserIntensity;
+
+    // 2. Distorsion + Aberration Chromatique
+    float wave = sin(fragCoord.y * 0.15 + time * WAVE_SPEED);
+    float shift = wave * heat;
+
+    // On lit le texte trois fois (R, G, B) avec des décalages différents
+    // Uniquement là où c'est chaud (heat)
+    float r = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH + CHROMATIC_SHIFT * heat, 0.0)).r;
+    float g = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH, 0.0)).g;
+    float b = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH - CHROMATIC_SHIFT * heat, 0.0)).b;
+    float a = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH, 0.0)).a;
+
+    if (a <= 0.0) return half4(0.0);
+
+    // 3. Rendu Final
+    half3 colorText = half3(r, g, b);
+    half3 surface = mix(COLOR_IDLE, COLOR_NEON, heat);
+    surface = mix(surface, COLOR_HOT, pow(heat, CORE_PWR));
+
+    // Ajout d'un "Core Sparkle" (micro scintillement au point de contact)
+    float sparkle = fract(sin(dot(fragCoord, float2(12.9898, 78.233))) * 43758.5453);
+    surface += COLOR_HOT * step(0.98, sparkle) * spatialHeat;
+
+    float bloom = exp(-d / (radius * 1.5)) * laserIntensity;
+    half3 glow = COLOR_NEON * bloom * BLOOM_PWR;
+
+    return half4((colorText * surface) + glow, a);
+}
