@@ -1,0 +1,53 @@
+// --- TABLEAU DE BORD (TWEAK ICI) ---
+const float RADIUS      = 0.15;  // Taille moyenne du blob (0.2 = 20% de l'écran)
+const float BREATH_STR  = 0.005;  // Force du Zoom IN/OUT global (0.0 = fixe)
+const float BREATH_SPD  = 0.05;   // Vitesse du Zoom IN/OUT
+const float DEFORM_STR  = 0.15;  // Force des ondulations sur les bords
+const float COMPLEXITY  = 0.4;   // Fréquence des bosses
+const float SPEED       = 0.25;   // Vitesse de l'agitation
+const float SMOOTH      = 0.001;  // Flou du bord
+
+uniform float uTime;
+uniform float uPulseAmplitude;
+uniform float2 iResolution;
+
+// --- FONCTIONS INTERNES ---
+float hash(float n) { return fract(sin(n) * 43758.5453123); }
+
+float noise(float2 p) {
+    float2 i = floor(p);
+    float2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float n = i.x + i.y * 57.0;
+    return mix(mix(hash(n + 0.0), hash(n + 1.0), f.x),
+               mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y);
+}
+
+half4 main(float2 fragCoord) {
+    float2 uv = (fragCoord - 0.5 * iResolution) / min(iResolution.y, iResolution.x);
+    float angle = atan(uv.y, uv.x);
+    float dist = length(uv);
+
+    // 1. CALCUL DE L'AGITATION (Les bosses qui bougent)
+    float2 p1 = float2(cos(angle), sin(angle)) * COMPLEXITY;
+    float deform1 = noise(p1 + uTime * SPEED) * 2.0 - 1.0;
+    float2 p2 = float2(sin(angle), cos(angle)) * (COMPLEXITY * 1.5);
+    float deform2 = noise(p2 - uTime * SPEED * 1.2) * 2.0 - 1.0;
+
+    float agitation = mix(deform1, deform2, 0.5) * DEFORM_STR;
+
+    // 2. CALCUL DU ZOOM IN/OUT (La respiration globale)
+    // C'est ici que tu contrôles l'effet de pompe
+    float breathing = sin(uTime * BREATH_SPD) * BREATH_STR;
+
+    // 3. COMBINAISON
+    float pulse = RADIUS + breathing + agitation;
+
+    float alpha = smoothstep(pulse, pulse - SMOOTH, dist);
+
+    half3 colorBase = half3(0.9, 0.9, 0.9);
+    half3 colorGlow = half3(0.7, 0.7, 0.7);
+    half3 finalColor = mix(colorBase, colorGlow, uPulseAmplitude);
+
+    return half4(finalColor * alpha, alpha);
+}
