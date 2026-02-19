@@ -15,10 +15,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.lebaillyapp.gembridge.domain.model.ChatState
+import com.lebaillyapp.gembridge.ui.component.ChatBackgroundWithBlob
 
 import com.lebaillyapp.gembridge.ui.screen.ChatScreenV2
 import com.lebaillyapp.gembridge.ui.theme.GemBridgeTheme
@@ -84,7 +89,30 @@ class MainActivity : ComponentActivity() {
 
 
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    ChatScreenV2()
+
+                  //  ChatScreenV2()
+
+                    //todo - test agsl shader UI
+
+                    // On crée un état local pour le test
+                    var testIndex by remember { mutableStateOf(0) }
+
+                    val dummyState = remember(testIndex) {
+                        when (testIndex) {
+                            0 -> ChatState(isLoading = false, error = null)     // Idle (Bleu)
+                            1 -> ChatState(isLoading = true, error = null)      // Loading (Violet)
+                            else -> ChatState(isLoading = false, error = "Erreur") // Error (Rouge)
+                        }
+                    }
+
+                    ChatBackgroundWithBlob(
+                        chatState = dummyState,
+                        onBgClick = {
+                            testIndex = (testIndex + 1) % 3
+                        }
+                    )
+
+
                 }
             }
         }
