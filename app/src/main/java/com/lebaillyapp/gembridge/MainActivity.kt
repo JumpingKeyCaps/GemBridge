@@ -24,6 +24,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.lebaillyapp.gembridge.domain.model.ChatState
 import com.lebaillyapp.gembridge.ui.component.ChatBackgroundWithBlob
+import com.lebaillyapp.gembridge.ui.screen.AiChatScreen
 
 import com.lebaillyapp.gembridge.ui.screen.ChatScreenV2
 import com.lebaillyapp.gembridge.ui.theme.GemBridgeTheme
@@ -94,9 +95,9 @@ class MainActivity : ComponentActivity() {
 
                     //todo - test agsl shader UI
 
+                    /**
                     // On crée un état local pour le test
                     var testIndex by remember { mutableStateOf(0) }
-
                     val dummyState = remember(testIndex) {
                         when (testIndex) {
                             0 -> ChatState(isLoading = false, error = null)     // Idle (Bleu)
@@ -104,13 +105,18 @@ class MainActivity : ComponentActivity() {
                             else -> ChatState(isLoading = false, error = "Erreur") // Error (Rouge)
                         }
                     }
-
                     ChatBackgroundWithBlob(
                         chatState = dummyState,
                         onBgClick = {
                             testIndex = (testIndex + 1) % 3
                         }
                     )
+
+                    */
+
+
+                    AiChatScreen()
+
 
 
                 }
