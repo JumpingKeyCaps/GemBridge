@@ -1,0 +1,55 @@
+// --- TWEAKABLES ---
+const float BRIGHTNESS = 0.8;
+const float FLUIDITY   = 0.35;
+const float SCALE      = 1.4;
+
+uniform float uTime;
+uniform float uProgress;
+uniform float2 iResolution;
+
+float hash(float2 p) {
+    return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+}
+
+float smoothNoise(float2 p) {
+    float2 i = floor(p);
+    float2 f = fract(p);
+    float2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i + float2(0,0)), hash(i + float2(1,0)), u.x),
+               mix(hash(i + float2(0,1)), hash(i + float2(1,1)), u.x), u.y);
+}
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / iResolution.xy;
+    float t = uTime * FLUIDITY;
+
+    // 1. DEUX NAPPES INDÉPENDANTES
+    // n1 gère la présence de la couleur 1, n2 gère la couleur 2
+    float n1 = smoothNoise(uv * SCALE + t);
+    float n2 = smoothNoise(uv * (SCALE * 1.2) - t * 0.7 + 5.0);
+
+    // 2. COULEURS PAR ÉTAT (Franches et Saturées)
+    half3 c1, c2;
+    if (uProgress < 0.5) {
+        float p = uProgress * 2.0;
+        // OK : Bleu Électrique et Rose/Magenta (très néon)
+        c1 = mix(half3(0.0, 0.5, 1.0), half3(0.5, 0.0, 1.0), p);
+        c2 = mix(half3(0.5, 0.8, 1.0), half3(1.0, 0.0, 0.5), p);
+    } else {
+        float p = (uProgress - 0.5) * 2.0;
+        // ERROR : Rouge vif et Ambre/Orange
+        c1 = mix(half3(0.5, 0.0, 1.0), half3(1.0, 0.0, 0.2), p);
+        c2 = mix(half3(1.0, 0.0, 0.5), half3(1.0, 0.5, 0.0), p);
+    }
+
+    // 3. MÉLANGE ADDITIF / ÉCRAN
+    // Au lieu de mix(c1, c2, n), on fait une superposition vaporeuse
+    half3 finalColor = c1 * n1 + c2 * n2;
+
+    // 4. NORMALISATION ET LUMINOSITÉ
+    // On évite que ça devienne trop blanc ou trop noir
+    finalColor = finalColor / (n1 + n2 + 0.001);
+    finalColor *= BRIGHTNESS;
+
+    return half4(finalColor, 1.0);
+}
