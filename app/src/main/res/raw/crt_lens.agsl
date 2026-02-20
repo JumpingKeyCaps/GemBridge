@@ -1,0 +1,103 @@
+uniform shader composable;
+uniform float2 size;
+uniform float time;
+
+// --- PARAMETRES STABLES ---
+const half3 BG_CENTER_COLOR = half3(0.05, 0.07, 0.12);
+const half3 BG_EDGE_COLOR   = half3(0.01, 0.01, 0.02);
+const float FISH_EYE_STRENGTH = 0.90; // Légèrement augmenté pour l'effet sphère
+const float SCREEN_ZOOM = 1.40;
+const float VIGNETTE_INTENSITY = 0.9;
+const half3 GRID_COLOR = half3(0.0, 0.9, 0.6);
+const float GRID_OPACITY = 0.05;
+const float GRID_SPACING = 80.0;
+const float SCANLINE_DENSITY = 0.5;
+const float SCANLINE_OPACITY = 0.05;
+
+// --- LES POTARDS DE GLITCH ---
+const float TEXT_ANAGLYPH = 4.0;
+const float GRID_ANAGLYPH = 6.0;
+const float SIGNAL_SHIFT  = 15.0;
+const float JITTER_CHANCE = 0.01;
+const float JITTER_INTENSITY = 45.0;
+const float GLOBAL_JITTER_CHANCE = 0.005;
+const float GLOBAL_JITTER_STRENGTH = 25.0;
+// -----------------------------
+
+float getGrid(float2 coord) {
+    float2 gridLine = step(0.97, fract(coord / GRID_SPACING));
+    return max(gridLine.x, gridLine.y);
+}
+
+half4 main(float2 fragCoord) {
+    float flicker = 1.0 - (sin(time * 80.0) * 0.02);
+    float aspect = size.x / size.y; // Le ratio magique
+
+    // 1. GLOBAL JITTER
+    float globalJitter = 0.0;
+    if (fract(sin(time * 20.0) * 43758.5453) < GLOBAL_JITTER_CHANCE) {
+        globalJitter = (fract(time * 100.0) - 0.5) * GLOBAL_JITTER_STRENGTH;
+    }
+
+    // 2. DISTORSION SPHÉRIQUE CORRIGÉE
+    float2 uv = fragCoord / size.xy;
+    float2 centeredUv = (uv * 2.0 - 1.0) / SCREEN_ZOOM;
+
+    // On compense l'aspect ici pour r2
+    float2 aspectCorrectedUv = centeredUv;
+    aspectCorrectedUv.x *= aspect;
+
+    // r2 est maintenant basé sur un cercle parfait, pas une ellipse
+    float r2 = dot(aspectCorrectedUv, aspectCorrectedUv);
+    float2 distortedCenteredUv = centeredUv * (1.0 + FISH_EYE_STRENGTH * r2);
+
+    float2 baseCoord = (distortedCenteredUv + 1.0) / 2.0 * size.xy;
+    baseCoord.x += globalJitter;
+
+    // 3. LINE JITTER
+    float lineJitter = 0.0;
+    if (fract(sin(dot(float2(time * 15.0, floor(baseCoord.y * 0.1)), float2(12.9898, 78.233))) * 43758.5453) < JITTER_CHANCE) {
+        lineJitter = (fract(time * 50.0) - 0.5) * JITTER_INTENSITY;
+    }
+
+    float2 sourceCoord = baseCoord + float2(lineJitter + SIGNAL_SHIFT, 0.0);
+
+    // 4. ANAGLYPHE TEXTE
+    float2 tShift = float2(TEXT_ANAGLYPH, 0.0);
+    half4 colR = composable.eval(sourceCoord + tShift);
+    half4 colG = composable.eval(sourceCoord);
+    half4 colB = composable.eval(sourceCoord - tShift);
+    half3 textRGB = half3(colR.r, colG.g, colB.b);
+    float textAlpha = max(colG.a, max(colR.a, colB.a));
+
+    // 5. RENDU FOND / TEXTE
+    if (sourceCoord.x < 0.0 || sourceCoord.x > size.x || sourceCoord.y < 0.0 || sourceCoord.y > size.y) {
+        return half4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    half4 color;
+    if (textAlpha <= 0.0) {
+        float gradientFactor = smoothstep(0.0, 1.5, r2);
+        color.rgb = mix(BG_CENTER_COLOR, BG_EDGE_COLOR, gradientFactor);
+        color.a = 1.0;
+    } else {
+        color = half4(textRGB, 1.0);
+    }
+
+    // 6. GRILLE ANAGLYPHE SÉPARÉE (Correction Rouge visible)
+    float2 gShift = float2(GRID_ANAGLYPH, 0.0);
+    float gR = getGrid(baseCoord + gShift);
+    float gG = getGrid(baseCoord);
+    float gB = getGrid(baseCoord - gShift);
+
+    color.rgb += gR * half3(1.0, 0.0, 0.0) * GRID_OPACITY; // Rouge
+    color.rgb += gG * GRID_COLOR * GRID_OPACITY;          // Vert/Cyan original
+    color.rgb += gB * half3(0.0, 0.5, 1.0) * GRID_OPACITY; // Bleu/Cyan
+
+    // 7. FINITIONS
+    color.rgb -= sin(fragCoord.y * SCANLINE_DENSITY + time * 5.0) * SCANLINE_OPACITY;
+    color.rgb *= flicker;
+    color.rgb *= 1.0 - (length(centeredUv) * VIGNETTE_INTENSITY);
+
+    return color;
+}
