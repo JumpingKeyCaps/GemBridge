@@ -5,7 +5,7 @@ uniform float time;
 uniform float laserIntensity;
 
 // --- PARAMETRES TWEAKABLES ---
-const half3 COLOR_IDLE = half3(0.4, 0.45, 0.5);
+const half3 COLOR_IDLE = half3(0.74, 0.75, 0.75);
 const half3 COLOR_NEON = half3(0.0, 0.6, 1.0);
 const half3 COLOR_HOT  = half3(1.0, 1.0, 1.0);
 const float BLOOM_PWR  = 0.7;
