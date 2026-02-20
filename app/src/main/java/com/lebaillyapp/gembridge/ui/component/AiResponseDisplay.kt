@@ -13,17 +13,24 @@ import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import com.lebaillyapp.gembridge.R
 
+
+
+
 @Composable
 fun AiResponseDisplay(
     fullText: String,
     fontSize: TextUnit = 16.sp,
-    charDelay: Long = 40L
+    charDelay: Long = 40L,
+    onCharAdded: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -35,6 +42,11 @@ fun AiResponseDisplay(
     var lastCharPos by remember { mutableStateOf(Offset.Zero) }
     var displayedCharCount by remember { mutableIntStateOf(0) }
     var isWriting by remember { mutableStateOf(true) }
+
+
+    val cyberFont = FontFamily(
+        Font(R.font.cyber_font_regular, FontWeight.Normal)
+    )
 
     val laserIntensity by animateFloatAsState(
         targetValue = if (isWriting) 1f else 0f,
@@ -53,10 +65,12 @@ fun AiResponseDisplay(
         for (i in 1..fullText.length) {
             delay(charDelay)
             displayedCharCount = i
+            onCharAdded()
         }
         delay(150)
         isWriting = false
     }
+
 
     Box(
         modifier = Modifier
@@ -76,6 +90,7 @@ fun AiResponseDisplay(
         Text(
             text = fullText.take(displayedCharCount),
             style = LocalTextStyle.current.copy(
+                fontFamily = cyberFont,
                 fontSize = fontSize,
                 lineHeight = fontSize * 1.4f,
                 letterSpacing = 1.sp
