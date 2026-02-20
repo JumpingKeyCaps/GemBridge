@@ -15,18 +15,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.lebaillyapp.gembridge.domain.model.ChatState
+import com.lebaillyapp.gembridge.ui.component.AiResponseDisplay
 import com.lebaillyapp.gembridge.ui.component.ChatBackgroundWithBlob
 import com.lebaillyapp.gembridge.ui.screen.AiChatScreen
 
 import com.lebaillyapp.gembridge.ui.screen.ChatScreenV2
+import com.lebaillyapp.gembridge.ui.screen.CyberpunkWindow
 import com.lebaillyapp.gembridge.ui.theme.GemBridgeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -114,8 +113,12 @@ class MainActivity : ComponentActivity() {
 
                     */
 
+                    //todo - demo ai sreen display
+                //    AiChatScreen()
 
-                    AiChatScreen()
+
+
+                    CyberpunkWindow()
 
 
 
