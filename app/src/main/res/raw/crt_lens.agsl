@@ -5,7 +5,7 @@ uniform float time;
 // --- PARAMETRES STABLES ---
 const half3 BG_CENTER_COLOR = half3(0.05, 0.07, 0.12);
 const half3 BG_EDGE_COLOR   = half3(0.01, 0.01, 0.02);
-const float FISH_EYE_STRENGTH = 0.90; // Légèrement augmenté pour l'effet sphère
+const float FISH_EYE_STRENGTH = 0.90;
 const float SCREEN_ZOOM = 1.40;
 const float VIGNETTE_INTENSITY = 0.9;
 const half3 GRID_COLOR = half3(0.0, 0.9, 0.6);
@@ -31,7 +31,7 @@ float getGrid(float2 coord) {
 
 half4 main(float2 fragCoord) {
     float flicker = 1.0 - (sin(time * 80.0) * 0.02);
-    float aspect = size.x / size.y; // Le ratio magique
+    float aspect = size.x / size.y;
 
     // 1. GLOBAL JITTER
     float globalJitter = 0.0;
@@ -39,15 +39,12 @@ half4 main(float2 fragCoord) {
         globalJitter = (fract(time * 100.0) - 0.5) * GLOBAL_JITTER_STRENGTH;
     }
 
-    // 2. DISTORSION SPHÉRIQUE CORRIGÉE
+    // 2. DISTORSION SPHÉRIQUE
     float2 uv = fragCoord / size.xy;
     float2 centeredUv = (uv * 2.0 - 1.0) / SCREEN_ZOOM;
-
-    // On compense l'aspect ici pour r2
     float2 aspectCorrectedUv = centeredUv;
     aspectCorrectedUv.x *= aspect;
 
-    // r2 est maintenant basé sur un cercle parfait, pas une ellipse
     float r2 = dot(aspectCorrectedUv, aspectCorrectedUv);
     float2 distortedCenteredUv = centeredUv * (1.0 + FISH_EYE_STRENGTH * r2);
 
@@ -62,39 +59,45 @@ half4 main(float2 fragCoord) {
 
     float2 sourceCoord = baseCoord + float2(lineJitter + SIGNAL_SHIFT, 0.0);
 
-    // 4. ANAGLYPHE TEXTE
+    // 4. ANAGLYPHE TEXTE + LASER (On récupère le signal du laser)
     float2 tShift = float2(TEXT_ANAGLYPH, 0.0);
     half4 colR = composable.eval(sourceCoord + tShift);
     half4 colG = composable.eval(sourceCoord);
     half4 colB = composable.eval(sourceCoord - tShift);
-    half3 textRGB = half3(colR.r, colG.g, colB.b);
-    float textAlpha = max(colG.a, max(colR.a, colB.a));
 
-    // 5. RENDU FOND / TEXTE
+    half3 laserAndTextRGB = half3(colR.r, colG.g, colB.b);
+
+    // 5. RENDU FOND / TEXTE (La correction "Alpha 1.0 Proof")
     if (sourceCoord.x < 0.0 || sourceCoord.x > size.x || sourceCoord.y < 0.0 || sourceCoord.y > size.y) {
         return half4(0.0, 0.0, 0.0, 1.0);
     }
 
     half4 color;
-    if (textAlpha <= 0.0) {
-        float gradientFactor = smoothstep(0.0, 1.5, r2);
-        color.rgb = mix(BG_CENTER_COLOR, BG_EDGE_COLOR, gradientFactor);
-        color.a = 1.0;
-    } else {
-        color = half4(textRGB, 1.0);
-    }
+    // On calcule la luminosité du signal reçu (laser ou texte)
+    float brightness = max(laserAndTextRGB.r, max(laserAndTextRGB.g, laserAndTextRGB.b));
 
-    // 6. GRILLE ANAGLYPHE SÉPARÉE (Correction Rouge visible)
+    // Si le signal est trop faible, on affiche le fond (grille + dégradé)
+    // Sinon on affiche le signal du laser en mode additif
+    float gradientFactor = smoothstep(0.0, 1.5, r2);
+    half3 backgroundColor = mix(BG_CENTER_COLOR, BG_EDGE_COLOR, gradientFactor);
+
+    // On mixe le fond avec le laser. Si brightness est fort, le laser gagne.
+    color.rgb = mix(backgroundColor, laserAndTextRGB, smoothstep(0.05, 0.15, brightness));
+    color.a = 1.0;
+
+    // 6. GRILLE ANAGLYPHE SÉPARÉE
     float2 gShift = float2(GRID_ANAGLYPH, 0.0);
     float gR = getGrid(baseCoord + gShift);
     float gG = getGrid(baseCoord);
     float gB = getGrid(baseCoord - gShift);
 
-    color.rgb += gR * half3(1.0, 0.0, 0.0) * GRID_OPACITY; // Rouge
-    color.rgb += gG * GRID_COLOR * GRID_OPACITY;          // Vert/Cyan original
-    color.rgb += gB * half3(0.0, 0.5, 1.0) * GRID_OPACITY; // Bleu/Cyan
+    // On n'ajoute la grille que là où le laser n'est pas trop violent pour ne pas saturer
+    float gridMask = 1.0 - smoothstep(0.5, 1.0, brightness);
+    color.rgb += gR * half3(1.0, 0.0, 0.0) * GRID_OPACITY * gridMask;
+    color.rgb += gG * GRID_COLOR * GRID_OPACITY * gridMask;
+    color.rgb += gB * half3(0.0, 0.5, 1.0) * GRID_OPACITY * gridMask;
 
-    // 7. FINITIONS
+    // 7. FINITIONS (Scanlines + Vignette)
     color.rgb -= sin(fragCoord.y * SCANLINE_DENSITY + time * 5.0) * SCANLINE_OPACITY;
     color.rgb *= flicker;
     color.rgb *= 1.0 - (length(centeredUv) * VIGNETTE_INTENSITY);
