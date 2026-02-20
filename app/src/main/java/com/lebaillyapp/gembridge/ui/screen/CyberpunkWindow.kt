@@ -148,11 +148,11 @@ fun CyberpunkWindow(
                         scrollState.scrollTo(scrollState.maxValue)
                      }
                 },
-                charDelay = 10L
+                charDelay = 20L
             )
 
             // Petit spacer optionnel à la fin pour pouvoir scroller au-delà du texte
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(250.dp))
         }
 
 
