@@ -11,10 +11,15 @@ const half3 COLOR_HOT  = half3(1.0, 1.0, 1.0);
 const float BLOOM_PWR  = 0.1;
 const float CORE_PWR   = 10.0;
 const float TRAIL_LENGTH = 180.0;
+
+// --- LE RETOUR DES POTARDS OPTIQUES ---
+const float DISTORT_STRENGTH = 25.0;
+const float CHROMATIC_SHIFT = 1.5;
+const float WAVE_SPEED = 2.3;
 // --------------------------------------------
 
 half4 main(float2 fragCoord) {
-    // 1. Physique du laser
+    // 1. Physique du laser (Inchangée)
     float d = distance(fragCoord, cursor);
     float spatialHeat = exp(-(d * d) / (radius * radius * 0.4));
     float horizontalHeat = 0.0;
@@ -27,33 +32,32 @@ half4 main(float2 fragCoord) {
     }
     float heat = max(spatialHeat, horizontalHeat) * laserIntensity;
 
-    // 2. Échantillonnage du texte (On récupère tes balises)
-    // On ne met pas de condition "if a < 0", on veut que le shader tourne partout
-    float4 textSample = composable.eval(fragCoord);
-    half3 texColor = textSample.rgb;
-    float a = textSample.a;
+    // 2. Distorsion + Aberration Chromatique (Le retour !)
+    float wave = sin(fragCoord.y * 0.15 + time * WAVE_SPEED);
+    float shift = wave * heat;
 
-    // 3. Calcul de la lumière pure (Ton Phare)
+    // On récupère tes balises avec le triple sampling "glitch"
+    float r = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH + CHROMATIC_SHIFT * heat, 0.0)).r;
+    float g = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH, 0.0)).g;
+    float b = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH - CHROMATIC_SHIFT * heat, 0.0)).b;
+    float a = composable.eval(fragCoord + float2(shift * DISTORT_STRENGTH, 0.0)).a;
+
+    half3 texColor = half3(r, g, b);
+
+    // 3. Calcul de la lumière pure (Le Phare)
     half3 laserSurface = mix(COLOR_IDLE, COLOR_NEON, heat);
     laserSurface = mix(laserSurface, COLOR_HOT, pow(heat, CORE_PWR));
 
     float bloom = exp(-d / (radius * 1.5)) * laserIntensity;
     half3 glow = COLOR_NEON * bloom * BLOOM_PWR;
 
-    // 4. LE MERGE SANS DÉCOUPE
-    // On crée une couleur de base : si c'est du texte, on prend sa couleur, sinon noir
-    half3 baseLayer = texColor;
+    // 4. LE MERGE PROPRE (Adapté pour garder les balises et la distorsion)
+    // On fait briller les lettres quand le laser passe
+    half3 illuminatedText = texColor + (COLOR_HOT * pow(heat, 5.0) * a);
 
-    // On fait briller les lettres quand le laser passe (Overdrive)
-    half3 illuminatedText = baseLayer + (COLOR_HOT * pow(heat, 5.0) * a);
-
-    // On ajoute le laser et le glow PAR-DESSUS tout
-    // Le secret : on ne multiplie RIEN par 'a' ici pour le laser et le glow
+    // On ajoute le laser et le glow
     half3 finalRGB = illuminatedText + (laserSurface * heat) + glow;
 
-    // 5. FIX FINAL : On renvoie un Alpha de 1.0 partout
-    // En forçant l'alpha à 1.0, on dit à Android : "N'essaie pas de mélanger avec le fond,
-    // je gère mon propre noir".
-    // Ça va transformer ton shader en un rectangle solide qui contient ton texte + ton laser.
+    // 5. ALPHA SOLIDE (Pour le merge avec le container shader sans cercle noir)
     return half4(finalRGB, 1.0);
 }
